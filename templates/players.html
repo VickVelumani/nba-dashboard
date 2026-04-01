@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sports Dashboard - Players</title>
+    <style>
+        body { background-color: #1a1a2e; color: white; font-family: Arial; padding: 20px; margin: 0; }
+        h1 { color: #e94560; text-align: center; font-size: 2em; padding: 20px 0; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .nav { text-align: center; margin-bottom: 30px; }
+        .nav a { color: white; text-decoration: none; margin: 0 15px; font-size: 1.1em; padding: 8px 20px; border-radius: 8px; }
+        .nav a.active { background: #e94560; }
+        .nav a:hover { background: #16213e; }
+        .search { text-align: center; margin-bottom: 25px; }
+        .player-card { background: #16213e; padding: 30px; border-radius: 12px; border-left: 4px solid #e94560; }
+        .player-name { font-size: 2em; font-weight: bold; margin-bottom: 5px; }
+        .player-info { color: #a8a8b3; margin-bottom: 20px; font-size: 1.1em; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 20px; }
+        .stat-box { background: #1a1a2e; padding: 15px; border-radius: 8px; text-align: center; }
+        .stat-value { font-size: 1.8em; font-weight: bold; color: #e94560; }
+        .stat-label { color: #a8a8b3; font-size: 0.85em; margin-top: 5px; }
+        .no-results { text-align: center; color: #a8a8b3; margin-top: 40px; font-size: 1.2em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏀 NBA Dashboard</h1>
+
+        <div class="nav">
+            <a href="/">Scores</a>
+            <a href="/players" class="active">Player Info</a>
+        </div>
+
+        <div class="search">
+            <form method="GET" action="/players">
+                <input type="text" name="name" placeholder="Search player e.g. LeBron James" value="{{ name }}"
+                    style="padding: 10px; width: 60%; border-radius: 8px; border: none; font-size: 1em;">
+                <button type="submit" style="padding: 10px 20px; background: #e94560; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer;">Search</button>
+            </form>
+        </div>
+
+        {% if player %}
+            <div class="player-card">
+                <div class="player-name">{{ player.first_name }} {{ player.last_name }}</div>
+                <div class="player-info">{{ player.position }} · {{ player.team.full_name }}</div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-value">{{ player.height }}</div>
+                        <div class="stat-label">Height</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ player.weight }}</div>
+                        <div class="stat-label">Weight (lbs)</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">#{{ player.jersey_number }}</div>
+                        <div class="stat-label">Jersey Number</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">{{ player.draft_year }}</div>
+                        <div class="stat-label">Draft Year</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">Round {{ player.draft_round }}</div>
+                        <div class="stat-label">Draft Round</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-value">Pick {{ player.draft_number }}</div>
+                        <div class="stat-label">Draft Pick</div>
+                    </div>
+                </div>
+            </div>
+        {% elif name %}
+            <div class="no-results">No player found. Try a different name.</div>
+        {% else %}
+            <div class="no-results">Search for any NBA player to see their info.</div>
+        {% endif %}
+
+    </div>
+</body>
+</html>

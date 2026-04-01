@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>NBA Dashboard</title>
+    <style>
+        body { background-color: #1a1a2e; color: white; font-family: Arial; padding: 20px; margin: 0; }
+        h1 { color: #e94560; text-align: center; font-size: 2em; padding: 20px 0; }
+        .container { max-width: 850px; margin: 0 auto; }
+        .nav { text-align: center; margin-bottom: 30px; }
+        .nav a { color: white; text-decoration: none; margin: 0 15px; font-size: 1.1em; padding: 8px 20px; border-radius: 8px; }
+        .nav a.active { background: #e94560; }
+        .nav a:hover { background: #16213e; }
+        .search { text-align: center; margin-bottom: 25px; }
+        .game { background: #16213e; padding: 20px; margin: 15px 0; border-radius: 12px; border-left: 4px solid #e94560; }
+        .game-header { display: flex; justify-content: space-between; align-items: center; }
+        .teams { font-size: 1.1em; font-weight: bold; }
+        .visitor { color: #a8a8b3; margin-top: 8px; }
+        .score { color: #e94560; font-size: 2em; font-weight: bold; text-align: center; }
+        .date { color: #a8a8b3; font-size: 0.85em; text-align: right; }
+        .status { display: inline-block; background: #e94560; padding: 3px 8px; border-radius: 4px; font-size: 0.8em; margin-top: 5px; }
+        .quarters { margin-top: 15px; border-top: 1px solid #2a2a4a; padding-top: 12px; }
+        .quarters table { width: 100%; border-collapse: collapse; font-size: 0.9em; }
+        .quarters th { color: #a8a8b3; padding: 4px 8px; text-align: center; }
+        .quarters td { padding: 4px 8px; text-align: center; }
+        .quarters tr:last-child td { font-weight: bold; color: #e94560; }
+        .win-prob { margin-top: 15px; border-top: 1px solid #2a2a4a; padding-top: 12px; }
+        .prob-bar-container { background: #2a2a4a; border-radius: 20px; height: 24px; overflow: hidden; display: flex; margin-top: 8px; }
+        .prob-home { background: #e94560; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; }
+        .prob-away { background: #0f3460; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 0.8em; font-weight: bold; }
+        .prob-labels { display: flex; justify-content: space-between; color: #a8a8b3; font-size: 0.85em; margin-top: 5px; }
+        .no-games { text-align: center; color: #a8a8b3; margin-top: 40px; font-size: 1.2em; }
+        .upcoming-time { color: #e94560; font-size: 1.1em; font-weight: bold; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏀 NBA Dashboard</h1>
+
+        <div class="nav">
+            <a href="/" class="active">Scores</a>
+            <a href="/players">Player Info</a>
+        </div>
+
+        <div class="search">
+            <form method="GET" action="/">
+                <input type="text" name="team" placeholder="Search team e.g. Lakers" value="{{ team }}"
+                    style="padding: 10px; width: 60%; border-radius: 8px; border: none; font-size: 1em;">
+                <button type="submit" style="padding: 10px 20px; background: #e94560; color: white; border: none; border-radius: 8px; font-size: 1em; cursor: pointer;">Search</button>
+            </form>
+        </div>
+
+        {% if games %}
+            {% for game in games %}
+            <div class="game">
+                <div class="game-header">
+                    <div>
+                        <div class="teams">{{ game.home_team.full_name }}</div>
+                        <div class="visitor">vs {{ game.visitor_team.full_name }}</div>
+                    </div>
+
+                    {% if game.status == "scheduled" or game.home_team_score == 0 and game.visitor_team_score == 0 %}
+                        <div class="upcoming-time">{{ game.formatted_time }}</div>
+                    {% else %}
+                        <div class="score">{{ game.home_team_score }} - {{ game.visitor_team_score }}</div>
+                    {% endif %}
+
+                    <div>
+                        <div class="date">{{ game.date[:10] }}</div>
+                        <div style="text-align:right;"><span class="status">{{ game.status }}</span></div>
+                    </div>
+                </div>
+
+                {% if game.home_q1 %}
+                <div class="quarters">
+                    <table>
+                        <tr>
+                            <th>Team</th>
+                            <th>Q1</th>
+                            <th>Q2</th>
+                            <th>Q3</th>
+                            <th>Q4</th>
+                            {% if game.home_ot1 %}<th>OT</th>{% endif %}
+                            <th>Total</th>
+                        </tr>
+                        <tr>
+                            <td>{{ game.home_team.abbreviation }}</td>
+                            <td>{{ game.home_q1 }}</td>
+                            <td>{{ game.home_q2 }}</td>
+                            <td>{{ game.home_q3 }}</td>
+                            <td>{{ game.home_q4 }}</td>
+                            {% if game.home_ot1 %}<td>{{ game.home_ot1 }}</td>{% endif %}
+                            <td>{{ game.home_team_score }}</td>
+                        </tr>
+                        <tr>
+                            <td>{{ game.visitor_team.abbreviation }}</td>
+                            <td>{{ game.visitor_q1 }}</td>
+                            <td>{{ game.visitor_q2 }}</td>
+                            <td>{{ game.visitor_q3 }}</td>
+                            <td>{{ game.visitor_q4 }}</td>
+                            {% if game.visitor_ot1 %}<td>{{ game.visitor_ot1 }}</td>{% endif %}
+                            <td>{{ game.visitor_team_score }}</td>
+                        </tr>
+                    </table>
+                </div>
+                {% endif %}
+
+                {% if game.win_probability %}
+                <div class="win-prob">
+                    <div style="color: #a8a8b3; font-size: 0.85em;">Win Probability</div>
+                    <div class="prob-bar-container">
+                        <div class="prob-home" style="width: {{ game.win_probability.home }}%">
+                            {% if game.win_probability.home > 15 %}{{ game.win_probability.home }}%{% endif %}
+                        </div>
+                        <div class="prob-away" style="width: {{ game.win_probability.away }}%">
+                            {% if game.win_probability.away > 15 %}{{ game.win_probability.away }}%{% endif %}
+                        </div>
+                    </div>
+                    <div class="prob-labels">
+                        <span>{{ game.home_team.abbreviation }}</span>
+                        <span>{{ game.visitor_team.abbreviation }}</span>
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="no-games">No games found. Try a different team or date.</div>
+        {% endif %}
+
+    </div>
+</body>
+</html>
